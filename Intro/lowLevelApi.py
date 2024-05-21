@@ -1,4 +1,7 @@
-#https://docs.llamaindex.ai/en/stable/examples/callbacks/TokenCountingHandler/#token-counting-handler
+# https://docs.llamaindex.ai/en/stable/examples/callbacks/TokenCountingHandler/#token-counting-handler
+# https://docs.llamaindex.ai/en/stable/module_guides/storing/save_load/
+# https://github.com/langchain-ai/langchain/discussions/4188
+# https://docs.llamaindex.ai/en/stable/understanding/storing/storing/
 ### Low-Level Query API ###
 
 ### Initial ###
@@ -20,10 +23,10 @@ Settings.callback_manager = CallbackManager([llama_debug,token_counter])
 print("Initial Done ----------------")
 
 ### Creating Llamaindex Documents ###
-from llama_index.core import download_loader
-WikipediaReader = download_loader("WikipediaReader")
-loader = WikipediaReader()
-wikipedia_documents = loader.load_data(pages=['Iceland Country','Kenya Country','Cambodia Country'])
+# from llama_index.core import download_loader
+# WikipediaReader = download_loader("WikipediaReader")
+# loader = WikipediaReader()
+# wikipedia_documents = loader.load_data(pages=['Iceland Country','Kenya Country','Cambodia Country'])
 # print(wikipedia_documents)
 print("Creating Llamaindex Documents Done----------------")
 
@@ -40,24 +43,25 @@ import nest_asyncio
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.core.tools import QueryEngineTool, ToolMetadata
 from llama_index.core.query_engine import SubQuestionQueryEngine
-# from llama_index.core import ServiceContext
-from llama_index.core.service_context import ServiceContext
 
 nest_asyncio.apply()
 
-# # Log the API usage
+################################################################################
+
+
+# from llama_index.core import StorageContext, load_index_from_storage
+# index = VectorStoreIndex.from_documents(
+#     wikipedia_documents
+# )
+# index.storage_context.persist(persist_dir="LOWLEVELDATA")
 
 
 
-
-# We are using the LlamaDebugHandler to print the trace of the sub questions captured by the SUB_QUESTION callback event type
-
-# DeprecationWarning
-
-# service_context = ServiceContext()
-vector_query_engine = VectorStoreIndex.from_documents(
-    wikipedia_documents, use_async=True
-).as_query_engine()
+################################################################################
+from llama_index.core import StorageContext, load_index_from_storage
+storage_context = StorageContext.from_defaults(persist_dir="LOWLEVELDATA")
+index = load_index_from_storage(storage_context)
+vector_query_engine = index.as_query_engine()
 
 query_engine_tools = [
     QueryEngineTool(
@@ -92,9 +96,9 @@ print('total count',token_counter.total_llm_token_count)
 token_counter.reset_counts()
 
 print('###')
+# "請告訴我冰島、肯亞和柬埔寨的人口數"
 response_chinese = query_engine.query(
-    "請告訴我冰島、肯亞和柬埔寨的人口數"
-)
+    "冰島簡介")
 # response_chinese 冰島的人口數約為32萬人，肯亞的人口數超過4760萬人，柬埔寨的人口數約為1672萬人。
 print("response_chinese",response_chinese)
 print('embedding count',token_counter.total_embedding_token_count)
