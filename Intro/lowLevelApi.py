@@ -98,7 +98,7 @@ token_counter.reset_counts()
 print('###')
 # "請告訴我冰島、肯亞和柬埔寨的人口數"
 response_chinese = query_engine.query(
-    "冰島簡介")
+    "台灣簡介")
 # response_chinese 冰島的人口數約為32萬人，肯亞的人口數超過4760萬人，柬埔寨的人口數約為1672萬人。
 print("response_chinese",response_chinese)
 print('embedding count',token_counter.total_embedding_token_count)
